@@ -10,18 +10,8 @@ export default function Header() {
           </Link>
           <ul className="flex gap-6">
             <li>
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                Link1
-              </Link>
-            </li>
-            <li>
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                Link2
-              </Link>
-            </li>
-            <li>
-              <Link href="/" className="text-gray-600 hover:text-gray-900">
-                Link3
+              <Link href="/login" className="text-gray-600 hover:text-gray-900">
+                ログイン
               </Link>
             </li>
           </ul>

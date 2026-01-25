@@ -135,4 +135,3 @@ docker-compose exec postgres psql -U dev -d devdb
 | Database | devdb |
 | Username | dev |
 | Password | dev |
-
