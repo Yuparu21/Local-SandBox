@@ -15,12 +15,36 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        // 管理者ユーザー
+        $admin = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => bcrypt('password123'), // 明示的にパスワード指定も可能
+            'password' => 'admin',
         ]);
+        $admin->role = 'admin';
+        $admin->status = 'active';
+        $admin->save();
+        
+        // 一般ユーザー
+        $user = User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'test',
+        ]);
+        $user->role = 'user';
+        $user->status = 'active';
+        $user->save();
+        
+        // 停止中ユーザー
+        $suspended = User::factory()->create([
+            'name' => 'Suspended User',
+            'email' => 'suspended@example.com',
+            'password' => 'suspended',
+        ]);
+        $suspended->role = 'user';
+        $suspended->status = 'suspended';
+        $suspended->save();
+        
+        
     }
 }
