@@ -3,10 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Session\Middleware\StartSession;
-use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Middleware\HandleCors;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -17,14 +13,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(prepend: [
-            HandleCors::class,
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,    
-            ShareErrorsFromSession::class,
-        ]);
+        $middleware
+            ->statefulApi()
+            ->api(append: [
+                HandleCors::class,
+            ])
+            ->validateCsrfTokens(except: [
+                'api/login',
+            ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // カスタム例外ハンドラの登録
     })->create();

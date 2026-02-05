@@ -9,9 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 class HandleCors
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * CORS対応ミドルウェア
+     * @param  Request  $request
+     * @param  \Closure(Request): (Response)  $next
+     * @return Response
      */
     public function handle(Request $request, Closure $next): Response
     {

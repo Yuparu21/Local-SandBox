@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,32 +20,30 @@ class DatabaseSeeder extends Seeder
         $admin = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => 'admin',
+            'password' => Hash::make('admin'),
         ]);
-        $admin->role = 'admin';
         $admin->status = 'active';
+        $admin->role = 'admin';
         $admin->save();
         
         // 一般ユーザー
         $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => 'test',
+            'password' => Hash::make('test'),
         ]);
-        $user->role = 'user';
         $user->status = 'active';
+        $user->role = 'user';
         $user->save();
         
         // 停止中ユーザー
         $suspended = User::factory()->create([
             'name' => 'Suspended User',
             'email' => 'suspended@example.com',
-            'password' => 'suspended',
+            'password' => Hash::make('suspended'),
         ]);
-        $suspended->role = 'user';
         $suspended->status = 'suspended';
+        $suspended->role = 'user';
         $suspended->save();
-        
-        
     }
 }

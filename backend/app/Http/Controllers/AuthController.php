@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use App\Services\AuthService;
 
 class AuthController extends Controller
 {
+    protected $authService;
+    
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+    
     /**
      * ログイン処理
      * @param Request  $request
@@ -20,20 +26,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
         
-        if (!Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => ['認証情報が正しくありません。'],
-            ]);
-        }
-        
-        $user = $request->user();
-        
-        if ($user->status !== 'active') {
-            Auth::guard('web')->logout();
-            throw ValidationException::withMessages([
-                'email' => ['このアカウントは現在利用できません。'],
-            ]);
-        }
+        $user = $this->authService->login($credentials);
         
         $request->session()->regenerate();
         
@@ -50,23 +43,13 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
+        $this->authService->logout();
         
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
         return response()->json([
-            'message' => 'ログアウトに成功しました。',
+            'message' => 'ログアウトしました。',
         ], 200);
-    }
-    
-    /**
-     * 現在のユーザ取得
-     * @param Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function user(Request $request)
-    {
-        return response()->json($request->user());
     }
 }
