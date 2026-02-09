@@ -136,7 +136,7 @@ class LoginEndpointTest extends TestCase
             ->assertJson([
                 'errors' => [
                     'email' => [
-                        '認証情報が正しくありません。'
+                        '入力されたメールアドレスまたはパスワードが正しくありません。'
                     ],   
                 ],
             ]);
@@ -158,7 +158,7 @@ class LoginEndpointTest extends TestCase
             ->assertJson([
                 'errors' => [
                     'email' => [
-                        '認証情報が正しくありません。'
+                        '入力されたメールアドレスまたはパスワードが正しくありません。'
                     ],   
                 ],
             ]);

@@ -108,7 +108,7 @@ class AuthServiceTest extends TestCase
         ];
 
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('認証情報が正しくありません。');
+        $this->expectExceptionMessage('入力されたメールアドレスまたはパスワードが正しくありません。');
 
         $this->authService->login($credentials);
     }
@@ -126,7 +126,7 @@ class AuthServiceTest extends TestCase
         ];
 
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('認証情報が正しくありません。');
+        $this->expectExceptionMessage('入力されたメールアドレスまたはパスワードが正しくありません。');
 
         $this->authService->login($credentials);
     }
@@ -144,7 +144,7 @@ class AuthServiceTest extends TestCase
         ];
 
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('認証情報が正しくありません。');
+        $this->expectExceptionMessage('入力されたメールアドレスまたはパスワードが正しくありません。');
 
         $this->authService->login($credentials);
     }

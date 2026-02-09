@@ -36,7 +36,7 @@ class AuthService
     {
         if (!Auth::guard('web')->attempt($credentials)) {
             throw ValidationException::withMessages([
-                'email' => '認証情報が正しくありません。',
+                'email' => ['入力されたメールアドレスまたはパスワードが正しくありません。'],
             ]);
         }
         $user = Auth::guard('web')->user();

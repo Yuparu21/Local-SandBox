@@ -130,4 +130,33 @@ class AuthControllerTest extends TestCase
         $data = json_decode($response->getContent(), true);
         $this->assertEquals('ログアウトしました。', $data['message']);
     }
+    
+    /**
+     * Test: user() が認証済みユーザー情報を返すことを確認
+     */
+    public function test_user_returns_authenticated_user_info(): void
+    {
+        $userMock = User::factory()->make([
+            'id'       => 1,
+            'name'     => 'Test User',
+            'email'    => 'test@example.com',
+        ]);
+        
+        $requestMock = Mockery::mock(Request::class);
+        $requestMock->shouldReceive('user')
+            ->once()
+            ->andReturn($userMock);
+        
+        $authServiceMock = Mockery::mock(AuthService::class);
+        $this->app->instance(AuthService::class, $authServiceMock);
+
+        $controller = new AuthController($authServiceMock);
+        $response = $controller->user($requestMock);
+        
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals($userMock->id, $data['id']);
+        $this->assertEquals($userMock->name, $data['name']);
+        $this->assertEquals($userMock->email, $data['email']);
+    }
 }
