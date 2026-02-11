@@ -18,9 +18,10 @@ class DatabaseSeeder extends Seeder
     {
         // 管理者ユーザー
         $admin = User::factory()->create([
-            'name' => 'Admin User',
+            'name' => '管理者',
+            'kana' => 'カンリシャ',
             'email' => 'admin@example.com',
-            'password' => Hash::make('admin'),
+            'password' => Hash::make('Admin1234!@#'),
         ]);
         $admin->status = 'active';
         $admin->role = 'admin';
@@ -28,9 +29,10 @@ class DatabaseSeeder extends Seeder
         
         // 一般ユーザー
         $user = User::factory()->create([
-            'name' => 'Test User',
+            'name' => 'テストユーザー',
+            'kana' => 'テストユーザー',
             'email' => 'test@example.com',
-            'password' => Hash::make('test'),
+            'password' => Hash::make('Test1234!@#'),
         ]);
         $user->status = 'active';
         $user->role = 'user';
@@ -38,12 +40,16 @@ class DatabaseSeeder extends Seeder
         
         // 停止中ユーザー
         $suspended = User::factory()->create([
-            'name' => 'Suspended User',
+            'name' => '停止ユーザー',
+            'kana' => 'テイシユーザー',
             'email' => 'suspended@example.com',
-            'password' => Hash::make('suspended'),
+            'password' => Hash::make('Suspended1234!@#'),
         ]);
         $suspended->status = 'suspended';
         $suspended->role = 'user';
         $suspended->save();
+        
+        // 追加のテストユーザー（ランダム生成）
+        User::factory()->count(10)->create();
     }
 }

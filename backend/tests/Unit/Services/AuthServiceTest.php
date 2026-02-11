@@ -183,4 +183,139 @@ class AuthServiceTest extends TestCase
 
         $this->assertFalse(Auth::guard('web')->check());
     }
+
+    /**
+     * Test: 【正常系】ValidateEmailVerified - メール確認済みユーザーの場合、例外がスローされないことを確認
+     */
+    public function test_validateEmailVerified_verified_user(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+        ]);
+
+        $this->authService->validateEmailVerified($user);
+        $this->assertTrue(true);
+    }
+
+    /**
+     * Test: 【異常系】ValidateEmailVerified - メール未確認ユーザーの場合、ValidationExceptionがスローされることを確認
+     */
+    public function test_validateEmailVerified_unverified_user(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('メールアドレスの確認が完了していません。登録時に送信されたメールを確認してください。');
+
+        $this->authService->validateEmailVerified($user);
+    }
+
+    /**
+     * Test: 【正常系】Register - 会員登録が成功することを確認
+     */
+    public function test_register_success(): void
+    {
+        $data = [
+            'name' => '山田太郎',
+            'kana' => 'ヤマダタロウ',
+            'email' => 'test@example.com',
+            'password' => 'Test1234!@#',
+        ];
+
+        $user = $this->authService->register($data);
+
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('山田太郎', $user->name);
+        $this->assertEquals('ヤマダタロウ', $user->kana);
+        $this->assertEquals('test@example.com', $user->email);
+        $this->assertNull($user->email_verified_at);
+
+        // DBに保存されていることを確認
+        $this->assertDatabaseHas('users', [
+            'name' => '山田太郎',
+            'kana' => 'ヤマダタロウ',
+            'email' => 'test@example.com',
+        ]);
+
+        // メール確認トークンが保存されていることを確認
+        $this->assertDatabaseHas('email_verifications', [
+            'email' => 'test@example.com',
+        ]);
+    }
+
+    /**
+     * Test: 【正常系】VerifyEmail - メール確認が成功することを確認
+     */
+    public function test_verifyEmail_success(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'email_verified_at' => null,
+        ]);
+
+        $token = \Illuminate\Support\Str::random(128);
+        \App\Models\EmailVerification::create([
+            'email' => 'test@example.com',
+            'token' => \Illuminate\Support\Facades\Hash::make($token),
+            'created_at' => now(),
+        ]);
+
+        $result = $this->authService->verifyEmail(['token' => $token]);
+
+        $this->assertInstanceOf(User::class, $result);
+        $this->assertEquals('test@example.com', $result->email);
+        $this->assertNotNull($result->email_verified_at);
+
+        // トークンが削除されていることを確認
+        $this->assertDatabaseMissing('email_verifications', [
+            'email' => 'test@example.com',
+        ]);
+    }
+
+    /**
+     * Test: 【異常系】VerifyEmail - 無効なトークンでValidationExceptionがスローされることを確認
+     */
+    public function test_verifyEmail_invalid_token(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'email_verified_at' => null,
+        ]);
+
+        \App\Models\EmailVerification::create([
+            'email' => 'test@example.com',
+            'token' => \Illuminate\Support\Facades\Hash::make('valid-token'),
+            'created_at' => now(),
+        ]);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('確認リンクが無効または期限切れです。');
+
+        $this->authService->verifyEmail(['token' => \Illuminate\Support\Str::random(128)]);
+    }
+
+    /**
+     * Test: 【異常系】VerifyEmail - 既に確認済みでValidationExceptionがスローされることを確認
+     */
+    public function test_verifyEmail_already_verified(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'email_verified_at' => now(),
+        ]);
+
+        $token = \Illuminate\Support\Str::random(128);
+        \App\Models\EmailVerification::create([
+            'email' => 'test@example.com',
+            'token' => \Illuminate\Support\Facades\Hash::make($token),
+            'created_at' => now(),
+        ]);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('このメールアドレスは既に確認済みです。');
+
+        $this->authService->verifyEmail(['token' => $token]);
+    }
 }

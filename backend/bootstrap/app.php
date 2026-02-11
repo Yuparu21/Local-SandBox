@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             ->statefulApi()
             ->validateCsrfTokens(except: [
                 'api/login',
+                'api/register',
+                'api/email/verify',
             ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

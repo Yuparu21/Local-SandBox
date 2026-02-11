@@ -159,4 +159,86 @@ class AuthControllerTest extends TestCase
         $this->assertEquals($userMock->name, $data['name']);
         $this->assertEquals($userMock->email, $data['email']);
     }
+
+    /**
+     * Test: register() がAuthServiceを呼び正しいレスポンスを返すことを確認
+     */
+    public function test_register_calls_authService_and_returns_correct_response(): void
+    {
+        $userMock = User::factory()->make([
+            'id'    => 1,
+            'name'  => '山田太郎',
+            'kana'  => 'ヤマダタロウ',
+            'email' => 'test@example.com',
+        ]);
+
+        $authServiceMock = Mockery::mock(AuthService::class);
+        $authServiceMock->shouldReceive('register')
+            ->once()
+            ->with([
+                'name' => '山田太郎',
+                'kana' => 'ヤマダタロウ',
+                'email' => 'test@example.com',
+                'password' => 'Test1234!@#',
+            ])
+            ->andReturn($userMock);
+        $this->app->instance(AuthService::class, $authServiceMock);
+
+        $requestMock = Mockery::mock(\App\Http\Requests\RegisterRequest::class);
+        $requestMock->shouldReceive('validated')
+            ->once()
+            ->andReturn([
+                'name' => '山田太郎',
+                'kana' => 'ヤマダタロウ',
+                'email' => 'test@example.com',
+                'password' => 'Test1234!@#',
+            ]);
+
+        $controller = new AuthController($authServiceMock);
+        $response = $controller->register($requestMock);
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('登録が完了しました。確認メールを送信しましたので、メールアドレスの確認を行ってください。', $data['message']);
+        $this->assertEquals($userMock->id, $data['user']['id']);
+        $this->assertEquals($userMock->name, $data['user']['name']);
+        $this->assertEquals($userMock->kana, $data['user']['kana']);
+        $this->assertEquals($userMock->email, $data['user']['email']);
+    }
+
+    /**
+     * Test: verifyEmail() がAuthServiceを呼び正しいレスポンスを返すことを確認
+     */
+    public function test_verifyEmail_calls_authService_and_returns_correct_response(): void
+    {
+        $userMock = User::factory()->make([
+            'id'    => 1,
+            'name'  => '山田太郎',
+            'kana'  => 'ヤマダタロウ',
+            'email' => 'test@example.com',
+        ]);
+
+        $authServiceMock = Mockery::mock(AuthService::class);
+        $authServiceMock->shouldReceive('verifyEmail')
+            ->once()
+            ->with(['token' => 'test-token-123'])
+            ->andReturn($userMock);
+        $this->app->instance(AuthService::class, $authServiceMock);
+
+        $requestMock = Mockery::mock(\App\Http\Requests\VerifyEmailRequest::class);
+        $requestMock->shouldReceive('validated')
+            ->once()
+            ->andReturn(['token' => 'test-token-123']);
+
+        $controller = new AuthController($authServiceMock);
+        $response = $controller->verifyEmail($requestMock);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+        $this->assertEquals('メールアドレスの確認が完了しました。ログインできます。', $data['message']);
+        $this->assertEquals($userMock->id, $data['user']['id']);
+        $this->assertEquals($userMock->name, $data['user']['name']);
+        $this->assertEquals($userMock->kana, $data['user']['kana']);
+        $this->assertEquals($userMock->email, $data['user']['email']);
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\AuthService;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\VerifyEmailRequest;
 
 class AuthController extends Controller
 {
@@ -61,5 +63,45 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    /**
+     * 会員登録処理
+     * @param RegisterRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function register(RegisterRequest $request)
+    {
+        $user = $this->authService->register($request->validated());
+
+        return response()->json([
+            'message' => '登録が完了しました。確認メールを送信しましたので、メールアドレスの確認を行ってください。',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'kana' => $user->kana,
+                'email' => $user->email,
+            ],
+        ], 201);
+    }
+
+    /**
+     * メールアドレス確認処理
+     * @param VerifyEmailRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyEmail(VerifyEmailRequest $request)
+    {
+        $user = $this->authService->verifyEmail($request->validated());
+
+        return response()->json([
+            'message' => 'メールアドレスの確認が完了しました。ログインできます。',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'kana' => $user->kana,
+                'email' => $user->email,
+            ],
+        ], 200);
     }
 }

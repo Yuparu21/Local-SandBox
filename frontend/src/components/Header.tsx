@@ -38,11 +38,18 @@ export default function Header() {
                 </li>
               </>
             ) : (
-              <li>
-                <Link href="/login" className="text-gray-600 hover:text-gray-900">
-                  ログイン
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link href="/register" className="text-gray-600 hover:text-gray-900">
+                    会員登録
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/login" className="text-gray-600 hover:text-gray-900">
+                    ログイン
+                  </Link>
+                </li>
+              </>
             )}
           </ul>
         </nav>
