@@ -5,7 +5,7 @@ import {
   useState,
   useContext,
   useEffect,
-  useMemo,
+  useCallback,
   ReactNode
 } from 'react'
 import type { User } from '@/types'
@@ -48,11 +48,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await fetch(`${apiUrl}/api/logout`, {
+      // CSRFトークンをクッキーから取得
+      const getCsrfToken = () => {
+        const cookies = document.cookie.split(';')
+        const xsrfCookie = cookies.find(c => c.trim().startsWith('XSRF-TOKEN='))
+        if (xsrfCookie) {
+          return decodeURIComponent(xsrfCookie.split('=')[1])
+        }
+        return null
+      }
+
+      const csrfToken = getCsrfToken()
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (csrfToken) {
+        headers['X-XSRF-TOKEN'] = csrfToken
+      }
+
+      const res = await fetch(`${apiUrl}/api/logout`, {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-        },
+        headers,
         credentials: 'include'
       })
       setUser(null)
@@ -64,11 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchUser()
   }, [])
-
-  const value = useMemo(
-    () => ({ user, loading, logout, refetch: fetchUser }),
-    [user, loading, logout, fetchUser]
-  )
 
   return (
     <AuthContext.Provider value={{ user, loading, logout, refetch: fetchUser }}>

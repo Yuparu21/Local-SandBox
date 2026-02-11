@@ -42,12 +42,24 @@ export function useLogin() {
         router.push("/");
       } else {
         const data = await res.json();
-        if (data.errors && data.errors.email) {
+        
+        // メール未確認エラーの場合
+        if (res.status === 403 && data.message) {
+          setError(data.message);
+        }
+        // バリデーションエラーの場合
+        else if (data.errors && data.errors.email) {
           setError(data.errors.email[0]);
-        } else {
+        }
+        // 認証失敗の場合
+        else if (res.status === 401) {
           setError(
             "入力されたメールアドレスまたはパスワードが正しくありません。",
           );
+        }
+        // その他のエラー
+        else {
+          setError(data.message || "ログインに失敗しました。");
         }
       }
     } catch (error) {

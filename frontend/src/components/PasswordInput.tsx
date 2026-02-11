@@ -6,6 +6,7 @@ interface PasswordInputProps {
   placeholder?: string
   required?: boolean
   label?: string
+  error?: string
 }
 
 export function PasswordInput({
@@ -13,6 +14,7 @@ export function PasswordInput({
   onChange,
   placeholder = 'パスワード',
   required = false,
+  error,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false)
 
@@ -24,7 +26,9 @@ export function PasswordInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-4 py-4 pr-12 text-lg border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+          className={`w-full px-4 py-3 pr-12 text-base border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 ${
+            error ? 'border-red-500' : 'border-gray-300'
+          }`}
           required={required}
         />
         <button
@@ -71,6 +75,9 @@ export function PasswordInput({
           )}
         </button>
       </div>
+      {error && (
+        <p className="mt-2 text-sm text-red-600">{error}</p>
+      )}
     </div>
   )
 }

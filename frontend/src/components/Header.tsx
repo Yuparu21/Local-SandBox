@@ -10,7 +10,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await logout()
-    router.push('/login')
+    router.push('/')
   }
 
   return (
