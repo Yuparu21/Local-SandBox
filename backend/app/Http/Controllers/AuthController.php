@@ -94,8 +94,16 @@ class AuthController extends Controller
     {
         $user = $this->authService->verifyEmail($request->validated());
 
+        // メール確認後、自動的にログイン状態にする
+        auth()->login($user);
+        
+        // セッションが利用可能な場合のみ再生成
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
         return response()->json([
-            'message' => 'メールアドレスの確認が完了しました。ログインできます。',
+            'message' => 'メールアドレスの確認が完了しました。',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,

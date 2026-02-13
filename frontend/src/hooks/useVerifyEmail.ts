@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuthContext } from '@/contexts/AuthContext'
 
 export function useVerifyEmail() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const router = useRouter()
+  const { refetch } = useAuthContext()
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost'
 
   const verifyEmail = async (token: string) => {
@@ -34,6 +36,8 @@ export function useVerifyEmail() {
 
       if (res.ok) {
         setSuccess(true)
+        // 認証後、ユーザー情報を再取得してログイン状態にする
+        await refetch()
         // 確認成功後、Topページへリダイレクト
         setTimeout(() => {
           router.push('/')

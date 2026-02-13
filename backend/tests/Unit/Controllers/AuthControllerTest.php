@@ -5,6 +5,7 @@ namespace Tests\Unit\Controllers;
 use Mockery;
 use Illuminate\Http\Request;
 use Illuminate\Session\Store;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use App\Models\User;
 use App\Services\AuthService;
@@ -207,9 +208,9 @@ class AuthControllerTest extends TestCase
     }
 
     /**
-     * Test: verifyEmail() がAuthServiceを呼び正しいレスポンスを返すことを確認
+     * Test: verifyEmail() がAuthServiceを呼び、自動ログイン処理を行い、正しいレスポンスを返すことを確認
      */
-    public function test_verifyEmail_calls_authService_and_returns_correct_response(): void
+    public function test_verifyEmail_calls_authService_and_login_and_returns_correct_response(): void
     {
         $userMock = User::factory()->make([
             'id'    => 1,
@@ -225,17 +226,32 @@ class AuthControllerTest extends TestCase
             ->andReturn($userMock);
         $this->app->instance(AuthService::class, $authServiceMock);
 
+        // Auth ファサードで login() が呼ばれることを確認
+        Auth::shouldReceive('login')
+            ->once()
+            ->with($userMock);
+
         $requestMock = Mockery::mock(\App\Http\Requests\VerifyEmailRequest::class);
         $requestMock->shouldReceive('validated')
             ->once()
             ->andReturn(['token' => 'test-token-123']);
+        
+        // セッションが利用可能な場合の再生成を確認
+        $sessionStoreMock = Mockery::mock(Store::class);
+        $sessionStoreMock->shouldReceive('regenerate')->once();
+        $requestMock->shouldReceive('hasSession')
+            ->once()
+            ->andReturn(true);
+        $requestMock->shouldReceive('session')
+            ->once()
+            ->andReturn($sessionStoreMock);
 
         $controller = new AuthController($authServiceMock);
         $response = $controller->verifyEmail($requestMock);
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getContent(), true);
-        $this->assertEquals('メールアドレスの確認が完了しました。ログインできます。', $data['message']);
+        $this->assertEquals('メールアドレスの確認が完了しました。', $data['message']);
         $this->assertEquals($userMock->id, $data['user']['id']);
         $this->assertEquals($userMock->name, $data['user']['name']);
         $this->assertEquals($userMock->kana, $data['user']['kana']);

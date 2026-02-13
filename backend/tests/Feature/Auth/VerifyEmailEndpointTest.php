@@ -31,13 +31,13 @@ class VerifyEmailEndpointTest extends TestCase
             'created_at' => Carbon::now(),
         ]);
 
-        $response = $this->postJson('/api/email/verify', [
+        $response = $this->withSession([])->postJson('/api/email/verify', [
             'token' => $token,
         ]);
 
         $response->assertStatus(200)
             ->assertJson([
-                'message' => 'メールアドレスの確認が完了しました。ログインできます。',
+                'message' => 'メールアドレスの確認が完了しました。',
                 'user' => [
                     'email' => 'test@example.com',
                 ],
@@ -51,6 +51,10 @@ class VerifyEmailEndpointTest extends TestCase
         $this->assertDatabaseMissing('email_verifications', [
             'email' => 'test@example.com',
         ]);
+        
+        // メール確認後、自動的にログイン状態になっていることを確認
+        $this->assertAuthenticated();
+        $this->assertEquals($user->id, auth()->id());
     }
 
     /**
