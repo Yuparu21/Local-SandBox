@@ -50,10 +50,8 @@ export function useRegister() {
 
       if (res.ok) {
         setSuccess(true)
-        // 登録成功後、Topページへリダイレクト
-        setTimeout(() => {
-          router.push('/')
-        }, 2000)
+        // 登録成功後、会員登録完了ページへリダイレクト
+        router.push('/register/complete')
       } else if (res.status === 422) {
         // バリデーションエラー
         setErrors(responseData.errors || {})
