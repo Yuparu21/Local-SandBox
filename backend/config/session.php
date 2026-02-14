@@ -135,7 +135,7 @@ return [
     /*
     |--------------------------------------------------------------------------
     | Session Cookie Path
-    |--------------------------------------------------------------------------
+    |--------------------------------------------------------------------------w
     |
     | The session cookie path determines the path for which the cookie will
     | be regarded as available. Typically, this will be the root path of

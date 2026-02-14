@@ -15,8 +15,8 @@
 
 | 用途 | フレームワーク | バージョン | ポート |
 |------|---------------|-----------|--------|
-| Frontend | Next.js | 14.2.0 | 3000 |
-| Frontend | React | 18.2.0 | - |
+| Frontend | Next.js | 15.1.3 | 3000 |
+| Frontend | React | 19.0.0 | - |
 | Backend | Laravel | 12.0 | 80 |
 
 ### インフラストラクチャ
@@ -123,7 +123,7 @@ docker-compose exec php bash
 docker-compose exec frontend sh
 
 # PostgreSQLに接続
-docker-compose exec postgres psql -U laravel -d laravel
+docker-compose exec postgres psql -U dev -d devdb
 ```
 
 ## データベース接続情報
@@ -135,4 +135,3 @@ docker-compose exec postgres psql -U laravel -d laravel
 | Database | devdb |
 | Username | dev |
 | Password | dev |
-

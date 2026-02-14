@@ -2,6 +2,5 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// BFFパターン: フロントエンドはNext.jsが担当
+// このファイルは空のまま保持（Laravel起動に必要）
